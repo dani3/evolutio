@@ -18,14 +18,13 @@ pub enum TokenType {
     Let,
 }
 
-pub struct Token {
+pub struct Token<'a> {
     pub kind: TokenType,
-    // todo change to &'a str
-    pub literal: String,
+    pub literal: &'a str,
 }
 
-impl Token {
-    pub fn new(kind: TokenType, literal: String) -> Self {
+impl<'a> Token<'a> {
+    pub fn new(kind: TokenType, literal: &'a str) -> Self {
         Self { kind, literal }
     }
 

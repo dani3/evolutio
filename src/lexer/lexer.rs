@@ -66,31 +66,58 @@ impl<'a> Lexer<'a> {
     pub fn next_token(&mut self) -> Token {
         let token: Token;
         if self.ch == 0 {
-            token = Token::new(TokenType::Eof, String::new());
+            token = Token::new(TokenType::Eof, "");
         } else {
             self.skip_whitespace();
 
             token = match self.ch as char {
-                '=' => Token::new(TokenType::Assign, (self.ch as char).to_string()),
-                ';' => Token::new(TokenType::Semicolon, (self.ch as char).to_string()),
-                '+' => Token::new(TokenType::Plus, (self.ch as char).to_string()),
-                ',' => Token::new(TokenType::Comma, (self.ch as char).to_string()),
-                '(' => Token::new(TokenType::LParen, (self.ch as char).to_string()),
-                ')' => Token::new(TokenType::RParen, (self.ch as char).to_string()),
-                '{' => Token::new(TokenType::LBrace, (self.ch as char).to_string()),
-                '}' => Token::new(TokenType::RBrace, (self.ch as char).to_string()),
+                '=' => Token::new(
+                    TokenType::Assign,
+                    &self.input[self.current_pos..self.next_pos],
+                ),
+                ';' => Token::new(
+                    TokenType::Semicolon,
+                    &self.input[self.current_pos..self.next_pos],
+                ),
+                '+' => Token::new(
+                    TokenType::Plus,
+                    &self.input[self.current_pos..self.next_pos],
+                ),
+                ',' => Token::new(
+                    TokenType::Comma,
+                    &self.input[self.current_pos..self.next_pos],
+                ),
+                '(' => Token::new(
+                    TokenType::LParen,
+                    &self.input[self.current_pos..self.next_pos],
+                ),
+                ')' => Token::new(
+                    TokenType::RParen,
+                    &self.input[self.current_pos..self.next_pos],
+                ),
+                '{' => Token::new(
+                    TokenType::LBrace,
+                    &self.input[self.current_pos..self.next_pos],
+                ),
+                '}' => Token::new(
+                    TokenType::RBrace,
+                    &self.input[self.current_pos..self.next_pos],
+                ),
                 _ => {
                     if is_letter(self.ch as char) {
                         let literal: &str = self.read_ident();
                         let kind: TokenType = Token::lookup_ident(literal);
 
-                        return Token::new(kind, String::from(literal));
+                        return Token::new(kind, literal);
                     } else if (self.ch as char).is_numeric() {
                         let literal: &str = self.read_number();
 
-                        return Token::new(TokenType::Int, String::from(literal));
+                        return Token::new(TokenType::Int, literal);
                     } else {
-                        Token::new(TokenType::Illegal, (self.ch as char).to_string())
+                        Token::new(
+                            TokenType::Illegal,
+                            &self.input[self.current_pos..self.next_pos],
+                        )
                     }
                 }
             };

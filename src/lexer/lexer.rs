@@ -1,5 +1,3 @@
-use std::cell::Cell;
-
 use super::token::{Token, TokenType};
 
 pub struct Lexer<'a> {
@@ -7,6 +5,10 @@ pub struct Lexer<'a> {
     current_pos: usize,
     next_pos: usize,
     ch: u8,
+}
+
+fn is_letter(c: char) -> bool {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
 }
 
 impl<'a> Lexer<'a> {
@@ -33,11 +35,41 @@ impl<'a> Lexer<'a> {
         self.next_pos += 1;
     }
 
+    fn read_ident(&mut self) -> &str {
+        let current = self.current_pos;
+        while is_letter(self.ch as char) {
+            self.read_char();
+        }
+
+        &self.input[current..self.current_pos]
+    }
+
+    fn read_number(&mut self) -> &str {
+        let current = self.current_pos;
+        while (self.ch as char).is_numeric() {
+            self.read_char();
+        }
+
+        &self.input[current..self.current_pos]
+    }
+
+    fn skip_whitespace(&mut self) {
+        while self.ch as char == '\t'
+            || self.ch as char == '\n'
+            || self.ch as char == '\r'
+            || self.ch as char == ' '
+        {
+            self.read_char();
+        }
+    }
+
     pub fn next_token(&mut self) -> Token {
         let token: Token;
         if self.ch == 0 {
             token = Token::new(TokenType::Eof, String::new());
         } else {
+            self.skip_whitespace();
+
             token = match self.ch as char {
                 '=' => Token::new(TokenType::Assign, (self.ch as char).to_string()),
                 ';' => Token::new(TokenType::Semicolon, (self.ch as char).to_string()),
@@ -47,7 +79,20 @@ impl<'a> Lexer<'a> {
                 ')' => Token::new(TokenType::RParen, (self.ch as char).to_string()),
                 '{' => Token::new(TokenType::LBrace, (self.ch as char).to_string()),
                 '}' => Token::new(TokenType::RBrace, (self.ch as char).to_string()),
-                _ => todo!(),
+                _ => {
+                    if is_letter(self.ch as char) {
+                        let literal: &str = self.read_ident();
+                        let kind: TokenType = Token::lookup_ident(literal);
+
+                        return Token::new(kind, String::from(literal));
+                    } else if (self.ch as char).is_numeric() {
+                        let literal: &str = self.read_number();
+
+                        return Token::new(TokenType::Int, String::from(literal));
+                    } else {
+                        Token::new(TokenType::Illegal, (self.ch as char).to_string())
+                    }
+                }
             };
         }
 
@@ -119,6 +164,8 @@ mod tests {
 
         for (k, l) in tests {
             let token: Token = lexer.next_token();
+
+            eprintln!("Kind: {:?} - Literal: {}", token.kind, token.literal);
 
             assert_eq!(token.kind, k);
             assert_eq!(token.literal, l);

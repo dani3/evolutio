@@ -103,6 +103,21 @@ impl<'a> Lexer<'a> {
                     TokenType::RBrace,
                     &self.input[self.current_pos..self.next_pos],
                 ),
+                '!' => Token::new(TokenType::Not, &self.input[self.current_pos..self.next_pos]),
+                '-' => Token::new(
+                    TokenType::Minus,
+                    &self.input[self.current_pos..self.next_pos],
+                ),
+                '>' => Token::new(TokenType::Gt, &self.input[self.current_pos..self.next_pos]),
+                '<' => Token::new(TokenType::Lt, &self.input[self.current_pos..self.next_pos]),
+                '*' => Token::new(
+                    TokenType::Asterisk,
+                    &self.input[self.current_pos..self.next_pos],
+                ),
+                '/' => Token::new(
+                    TokenType::Slash,
+                    &self.input[self.current_pos..self.next_pos],
+                ),
                 _ => {
                     if is_letter(self.ch as char) {
                         let literal: &str = self.read_ident();
@@ -145,7 +160,9 @@ mod tests {
                 x + y
             };
 
-            let result = add(five, ten);",
+            let result = add(five, ten);
+            !-/*5;
+            5 < 10 > 5;",
         );
 
         let tests: Vec<(TokenType, &str)> = vec![
@@ -184,6 +201,18 @@ mod tests {
             (TokenType::Ident, "ten"),
             (TokenType::RParen, ")"),
             (TokenType::Semicolon, ";"),
+            (TokenType::Not, "!"),
+            (TokenType::Minus, "-"),
+            (TokenType::Slash, "/"),
+            (TokenType::Asterisk, "*"),
+            (TokenType::Int, "5"),
+            (TokenType::Semicolon, ";"),
+            (TokenType::Int, "5"),
+            (TokenType::Lt, "<"),
+            (TokenType::Int, "10"),
+            (TokenType::Gt, ">"),
+            (TokenType::Int, "5"),
+            (TokenType::Semicolon, ";"),
             (TokenType::Eof, ""),
         ];
 
@@ -191,8 +220,6 @@ mod tests {
 
         for (k, l) in tests {
             let token: Token = lexer.next_token();
-
-            eprintln!("Kind: {:?} - Literal: {}", token.kind, token.literal);
 
             assert_eq!(token.kind, k);
             assert_eq!(token.literal, l);

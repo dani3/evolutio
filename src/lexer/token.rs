@@ -3,7 +3,15 @@
 //! Data structure that holds a first representation of the source code.
 
 // Array containing all the language keywords.
-const KEYWORDS: [(&str, TokenType); 2] = [("fn", TokenType::Function), ("let", TokenType::Let)];
+const KEYWORDS: [(&str, TokenType); 7] = [
+    ("fn", TokenType::Function),
+    ("let", TokenType::Let),
+    ("if", TokenType::If),
+    ("else", TokenType::Else),
+    ("return", TokenType::Return),
+    ("true", TokenType::True),
+    ("false", TokenType::False),
+];
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum TokenType {
@@ -27,6 +35,11 @@ pub enum TokenType {
     RBrace,
     Function,
     Let,
+    If,
+    Else,
+    True,
+    False,
+    Return,
 }
 
 /// Data structure that holds the type of token and the literal associated.

@@ -63,6 +63,14 @@ impl<'a> Lexer<'a> {
         }
     }
 
+    fn peek_char(&mut self) -> Option<char> {
+        if self.current_pos >= self.input.len() {
+            None
+        } else {
+            Some(self.input.chars().nth(self.next_pos).unwrap())
+        }
+    }
+
     pub fn next_token(&mut self) -> Token {
         let token: Token;
         if self.ch == 0 {
@@ -71,10 +79,27 @@ impl<'a> Lexer<'a> {
             self.skip_whitespace();
 
             token = match self.ch as char {
-                '=' => Token::new(
-                    TokenType::Assign,
-                    &self.input[self.current_pos..self.next_pos],
-                ),
+                '=' => {
+                    if let Some(i) = self.peek_char() {
+                        if i == '=' {
+                            self.read_char();
+                            Token::new(
+                                TokenType::Eq,
+                                &self.input[(self.current_pos - 1)..self.next_pos],
+                            )
+                        } else {
+                            Token::new(
+                                TokenType::Assign,
+                                &self.input[self.current_pos..self.next_pos],
+                            )
+                        }
+                    } else {
+                        Token::new(
+                            TokenType::Assign,
+                            &self.input[self.current_pos..self.next_pos],
+                        )
+                    }
+                }
                 ';' => Token::new(
                     TokenType::Semicolon,
                     &self.input[self.current_pos..self.next_pos],
@@ -103,7 +128,21 @@ impl<'a> Lexer<'a> {
                     TokenType::RBrace,
                     &self.input[self.current_pos..self.next_pos],
                 ),
-                '!' => Token::new(TokenType::Not, &self.input[self.current_pos..self.next_pos]),
+                '!' => {
+                    if let Some(i) = self.peek_char() {
+                        if i == '=' {
+                            self.read_char();
+                            Token::new(
+                                TokenType::Neq,
+                                &self.input[(self.current_pos - 1)..self.next_pos],
+                            )
+                        } else {
+                            Token::new(TokenType::Not, &self.input[self.current_pos..self.next_pos])
+                        }
+                    } else {
+                        Token::new(TokenType::Not, &self.input[self.current_pos..self.next_pos])
+                    }
+                }
                 '-' => Token::new(
                     TokenType::Minus,
                     &self.input[self.current_pos..self.next_pos],
@@ -167,7 +206,10 @@ mod tests {
                 return true;
             } else {
                 return false;
-            }",
+            }
+
+            10 == 10;
+            10 != 9;",
         );
 
         let tests: Vec<(TokenType, &str)> = vec![
@@ -235,6 +277,14 @@ mod tests {
             (TokenType::False, "false"),
             (TokenType::Semicolon, ";"),
             (TokenType::RBrace, "}"),
+            (TokenType::Int, "10"),
+            (TokenType::Eq, "=="),
+            (TokenType::Int, "10"),
+            (TokenType::Semicolon, ";"),
+            (TokenType::Int, "10"),
+            (TokenType::Neq, "!="),
+            (TokenType::Int, "9"),
+            (TokenType::Semicolon, ";"),
             (TokenType::Eof, ""),
         ];
 

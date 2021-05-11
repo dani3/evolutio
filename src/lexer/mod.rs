@@ -1,5 +1,5 @@
 mod lexer;
 mod token;
 
-pub use lexer::*;
-pub use token::*;
+pub(crate) use lexer::*;
+pub(crate) use token::*;

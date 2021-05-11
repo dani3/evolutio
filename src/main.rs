@@ -1,8 +1,8 @@
 mod lexer;
+mod repl;
 
 use lexer::Lexer;
-use lexer::Token;
 
 fn main() {
-    println!("Hello, world!");
+    repl::start(&mut std::io::stdin().lock(), &mut std::io::stdout().lock()).unwrap();
 }

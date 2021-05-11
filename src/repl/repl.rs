@@ -1,7 +1,7 @@
 use std::io::{BufRead, Read, Write};
 
 use crate::lexer::Lexer;
-use crate::lexer::{Token, TokenType};
+use crate::lexer::TokenType;
 
 const PROMPT: &[u8] = b">> ";
 

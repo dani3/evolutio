@@ -2,7 +2,7 @@
 //!
 //! Data structure that holds a first representation of the source code.
 
-// Array containing all the language keywords.
+/// Array containing all the language keywords.
 const KEYWORDS: [(&str, TokenType); 7] = [
     ("fn", TokenType::Function),
     ("let", TokenType::Let),
@@ -13,6 +13,7 @@ const KEYWORDS: [(&str, TokenType); 7] = [
     ("false", TokenType::False),
 ];
 
+/// Types of tokens allowed in the language.
 #[derive(PartialEq, Debug, Clone)]
 pub enum TokenType {
     Illegal,
@@ -53,6 +54,11 @@ pub struct Token<'a> {
 
 impl<'a> Token<'a> {
     /// Constructs a new `Token`.
+    ///
+    /// # Arguments
+    ///
+    /// * `kind` - type of the token
+    /// * `literal` - a reference to a `str` associated with the token.
     pub fn new(kind: TokenType, literal: &'a str) -> Self {
         Self { kind, literal }
     }

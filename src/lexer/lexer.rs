@@ -1,9 +1,18 @@
+//! # Lexer
+//!
+//! In order to work with source code, it needs to be turned into a more accessible form. The first transformation, from source code to tokens, is called _lexical analysis_, or _lexing_. This is done by the `lexer`.
+
 use super::token::{Token, TokenType};
 
+/// Struct that represent the Lexer.
 pub struct Lexer<'a> {
+    /// Input source code.
     input: &'a str,
+    /// Current position in the source code.
     current_pos: usize,
+    /// Next position to be read from the source code.
     next_pos: usize,
+    /// Current char read from the source code stored as a `u8`.
     ch: u8,
 }
 
@@ -12,6 +21,11 @@ fn is_letter(c: char) -> bool {
 }
 
 impl<'a> Lexer<'a> {
+    /// Constructs a new `Lexer` object.
+    ///
+    /// # Arguments
+    ///
+    /// * `input` - reference to the input source code to be lexed.
     pub fn new(input: &'a str) -> Self {
         let mut s = Self {
             input,
@@ -25,6 +39,7 @@ impl<'a> Lexer<'a> {
         s
     }
 
+    /// Reads the following char.
     fn read_char(&mut self) {
         match self.input.chars().nth(self.next_pos) {
             Some(c) => self.ch = c as u8,
@@ -35,6 +50,7 @@ impl<'a> Lexer<'a> {
         self.next_pos += 1;
     }
 
+    /// Returns a reference to an identifer that starts with the current char.
     fn read_ident(&mut self) -> &str {
         let current = self.current_pos;
         while is_letter(self.ch as char) {
@@ -44,6 +60,7 @@ impl<'a> Lexer<'a> {
         &self.input[current..self.current_pos]
     }
 
+    /// Returns a reference to the number that starts with the current char.
     fn read_number(&mut self) -> &str {
         let current = self.current_pos;
         while (self.ch as char).is_numeric() {
@@ -53,6 +70,7 @@ impl<'a> Lexer<'a> {
         &self.input[current..self.current_pos]
     }
 
+    /// Skips whitespaces and empty lines.
     fn skip_whitespace(&mut self) {
         while self.ch as char == '\t'
             || self.ch as char == '\n'
@@ -63,6 +81,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
+    /// Returns the following char without moving the current pointer.
     fn peek_char(&mut self) -> Option<char> {
         if self.current_pos >= self.input.len() {
             None
@@ -71,6 +90,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
+    /// Returns the next token.
     pub fn next_token(&mut self) -> Token {
         let token: Token;
         if self.ch == 0 {
